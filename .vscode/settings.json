@@ -15,11 +15,14 @@
     "powershell.codeFolding.enable": true,
 	"powershell.scriptAnalysis.enable": true,
     "powershell.scriptAnalysis.settingsPath": ".github/workflows/PSScriptAnalyzerSettings.psd1",
+
+
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
     "editor.rulers": [
         115
     ],
+    "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true
 }
