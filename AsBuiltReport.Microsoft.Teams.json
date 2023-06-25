@@ -21,6 +21,7 @@
         "Conferencing": 0,
         "Endpoints": 0,
         "CallRouting": 5,
+        "PhoneNumbers" : 5,
         "CallHandling": 0,
         "LocationBasedRouting": 0,
         "LocationInformationService": 0,

@@ -40,6 +40,249 @@ function Get-AbrCsPSTNCallingInfo {
             BlankLine
         }
 
+        #Region Phone Numbers
+        Write-PScriboMessage 'Collecting Phone Numbers.'
+        $PhoneNumbers = Get-CsPhoneNumberAssignment | Sort-Object PhoneNumber
+        if (($InfoLevel.PhoneNumbers -gt 0) -and ($PhoneNumbers)) {
+            Section -Style Heading2 'Telephone Numbers' {
+                #Measure the numbers to display in the blurb
+                $UserNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'UserAssignment') })
+                $ServiceNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'VoiceApplicationAssignment') })
+                $AssignedUserNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'UserAssignment') -and ($_.PstnAssignmentStatus -ne 'Unassigned') })
+                $AssignedServiceNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'VoiceApplicationAssignment') -and ($_.PstnAssignmentStatus -ne 'Unassigned') })
+                $UnassignedUserNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'UserAssignment') -and ($_.PstnAssignmentStatus -eq 'Unassigned') })
+                $UnassignedServiceNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'VoiceApplicationAssignment') -and ($_.PstnAssignmentStatus -eq 'Unassigned') })
+                $DirectRoutingNumbers = ($PhoneNumbers | Where-Object { ($_.NumberType -eq 'DirectRouting') })
+                $MSCallingPlanNumbers = ($PhoneNumbers | Where-Object { ($_.NumberType -eq 'CallingPlan') -and ($_.PstnPartnerName -eq "Microsoft") })
+                $OperatorConnectNumbers = ($PhoneNumbers | Where-Object { ($_.NumberType -eq 'CallingPlan') -and ($_.PstnPartnerName -ne "Microsoft") })
+                $UniqueCities = ($PhoneNumbers | Select-Object -ExpandProperty City -Unique)
+                $NumberProviders = ($PhoneNumbers | Select-Object -ExpandProperty PstnPartnerName -Unique)
+
+                if ($Options.ShowSectionBlurb) {
+                    if (!$options.ShowSectionFullDescription) {
+                        #We dont want the blurb and the full description if the user selects both
+                        Paragraph 'Telephone Numbers are globaly unique numbers assigned to users and voice applications to allow them to connect to the PSTN'
+                        BlankLine
+                    }
+                }
+                if ($Options.ShowSectionFullDescription) {
+                    Paragraph 'Telephone Numbers are globaly uniquie numbers assigned to users and voice applications to allow them to connect to the PSTN'
+                    Paragraph {
+                        Text 'These are provided by your PSTN provider and are used to uniquely identify your users and voice applications. '
+                        Text 'They come in two variants, '; Text 'Service Numbers' -Bold; Text 'and'; Text 'User Numbers' -Bold
+                        Text 'Service Numbers are used to provide a single number for a service such as a Call Queue, Auto Attendant, or Conference Bridge. '
+                        Text 'User Numbers are used to provide a number for a user to receive calls on. '
+                        Text 'For more information see https://learn.microsoft.com/en-us/microsoftteams/different-kinds-of-phone-numbers-used-for-calling-plans?WT.mc_id=M365-MVP-5003444' }
+                    BlankLine
+                }
+
+                Section -Style Heading3 'Phone Number Summary' {
+                    Paragraph "The following table shows a summary of PSTN numbers within $($CsTenant.DisplayName) tenant."
+
+                    $PhoneNumbersSummary = @()
+                    #Im sure there is a better way of doing this with an array and get-variable. But this works.
+                    $InObj = [Ordered]@{
+                        'Name' = 'Total Numbers'
+                        'Count' = $PhoneNumbers.Count
+                        'Description' = 'Total Number of PSTN Numbers Present in the Tenant'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'User Numbers'
+                        'Count' = $UserNumbers.Count
+                        'Description' = 'Total Number of User Numbers Present in the Tenant'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Service Numbers'
+                        'Count' = $ServiceNumbers.Count
+                        'Description' = 'Total Number of Service Numbers Present in the Tenant'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Assigned User Numbers'
+                        'Count' = $AssignedUserNumbers.Count
+                        'Description' = 'User Numbers Assigned to Users'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Assigned Service Numbers'
+                        'Count' = $AssignedServiceNumbers.Count
+                        'Description' = 'Service Numbers Assigned to Voice Applications'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Unassigned User Numbers'
+                        'Count' = $UnassignedUserNumbers.Count
+                        'Description' = 'Unassgined User Numbers'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Unassigned Service Numbers'
+                        'Count' = $UnassignedServiceNumbers.Count
+                        'Description' = 'Unassigned Service Numbers'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Calling Plan Numbers'
+                        'Count' = $MSCallingPlanNumbers.Count
+                        'Description' = 'Numbers provided by Microsoft Calling Plans'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Direct Routing Numbers'
+                        'Count' = $DirectRoutingNumbers.Count
+                        'Description' = 'Numbers provided by Direct Routing'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Operator Connect Numbers'
+                        'Count' = $OperatorConnectNumbers.Count
+                        'Description' = 'Numbers provided by Operator Connect Partners'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+                    $InObj = [Ordered]@{
+                        'Name' = 'Uniqiue Cities'
+                        'Count' = $UniqueCities.Count
+                        'Description' = 'Number of unique number regions by city'
+                    }
+                    $PhoneNumbersSummary += [PSCustomObject]$InObj
+
+
+                    $TableParams = @{
+                        Name = 'Number Summary'
+                        List = $false
+                        Columns = 'Name', 'Count', 'Description'
+                        ColumnWidths = 40, 10, 50
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $PhoneNumbersSummary | Table @TableParams
+                }
+                Section -Style Heading3 'Phone Numbers by City' {
+                    $CityNumberInfo = @()
+                    foreach ($UniqueCity in $UniqueCities) {
+                        $InObj = [Ordered]@{
+                            'City' = $UniqueCity
+                            'Total Numbers' = ($PhoneNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'User Numbers' = ($UserNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'Service Numbers' = ($ServiceNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'Assigned User Numbers' = ($AssignedUserNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'Assigned Service Numbers' = ($AssignedServiceNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'Available User Numbers' = ($UnassignedUserNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                            'Available Service Numbers' = ($UnassignedUserNumbers | Where-Object { $_.City -eq $UniqueCity }).count
+                        }
+                        $CityNumberInfo += [PSCustomObject]$InObj
+                    }
+                    if (($InfoLevel.PhoneNumbers -le 2) -and ($PhoneNumbers)) {
+                        Paragraph 'The following table show a summary of PSTN numbers broken down by their city.'
+                        $TableParams = @{
+                            Name = 'Numbers By City'
+                            List = $false
+                            Columns = 'City', 'User Numbers', 'Service Numbers', 'Available User Numbers', 'Available Service Numbers', 'Total Numbers'
+                            ColumnWidths = 20, 16, 16, 16, 16, 16
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $CityNumberInfo | Table @TableParams
+                    } else {
+
+                        Paragraph 'The following tables show a summary of PSTN numbers broken down by their city.'
+                        ForEach ($UniqueCityInfo in $CityNumberInfo) {
+                            Section -Style Heading4 "$($UniqueCityInfo.City)" {
+                                $TableParams = @{
+                                    Name = "Numbers By City - $($UniqueCityInfo.City)"
+                                    List = $true
+                                    ColumnWidths = 50, 50
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $UniqueCityInfo | Table @TableParams
+                            }
+                        }
+                    }
+                }
+                Section -Style Heading3 'Phone Numbers by Provider' {
+                    $ProviderNumberInfo = @()
+
+                    #Direct Routing Numbers
+                    $InObj = [Ordered]@{
+                        'Provider' = 'Direct Routing'
+                        'Total Numbers' = ($PhoneNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'User Numbers' = ($UserNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'Service Numbers' = ($ServiceNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'Assigned User Numbers' = ($AssignedUserNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'Assigned Service Numbers' = ($AssignedServiceNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'Available User Numbers' = ($UnassignedUserNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                        'Available Service Numbers' = ($UnassignedUserNumbers | Where-Object { $_.NumberType -eq 'DirectRouting' }).count
+                    }
+                    $ProviderNumberInfo += [PSCustomObject]$InObj
+
+                    #Operator Connect Providers
+                    foreach ($NumberProvider in $NumberProviders) {
+                        $InObj = [Ordered]@{
+                            'Provider' = $NumberProvider
+                            'Total Numbers' = ($PhoneNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'User Numbers' = ($UserNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'Service Numbers' = ($ServiceNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'Assigned User Numbers' = ($AssignedUserNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'Assigned Service Numbers' = ($AssignedServiceNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'Available User Numbers' = ($UnassignedUserNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                            'Available Service Numbers' = ($UnassignedUserNumbers | Where-Object { $_.PstnPartnerName -eq $NumberProvider }).count
+                        }
+                        $ProviderNumberInfo += [PSCustomObject]$InObj
+                    }
+                    if (($InfoLevel.PhoneNumbers -le 2) -and ($PhoneNumbers)) {
+                        Paragraph 'The following table show a summary of PSTN numbers broken down by their provider.'
+                        $TableParams = @{
+                            Name = 'Numbers By Provider'
+                            List = $false
+                            Columns = 'Provider', 'User Numbers', 'Service Numbers', 'Available User Numbers', 'Available Service Numbers', 'Total Numbers'
+                            ColumnWidths = 20, 16, 16, 16, 16, 16
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $ProviderNumberInfo | Table @TableParams
+                    } else {
+
+                        Paragraph 'The following tables show a summary of PSTN numbers broken down by their provider.'
+                        ForEach ($UniqueProviderNumberInfo in $ProviderNumberInfo) {
+                            Section -Style Heading4 "$($UniqueProviderNumberInfo.Provider)" {
+                                $TableParams = @{
+                                    Name = "Numbers By Provider - $($UniqueProviderNumberInfo.Provider)"
+                                    List = $true
+                                    ColumnWidths = 50, 50
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $UniqueCityInfo | Table @TableParams
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Section -Style Heading2 'Telephone Numbers' {
+                Paragraph 'No Telephone Numbers found, Your Tenant will be uable to make and recieve phone calls using the PSTN.'
+                Paragraph 'See https://learn.microsoft.com/en-us/microsoftteams/getting-phone-numbers-for-your-users?WT.mc_id=M365-MVP-5003444 for more information.'
+            }
+        }
+
         #region Dial Plans
         Write-PScriboMessage 'Collecting Tenant Dial Plans.'
         $CsTenantDialPlans = Get-CsTenantDialPlan | Sort-Object DisplayName
@@ -447,7 +690,7 @@ function Get-AbrCsPSTNCallingInfo {
                         $TableParams = @{
                             Name = 'Voice Routes'
                             List = $false
-                            Columns = 'Priority','Name', 'Number Pattern', 'PSTN Usages', 'PSTN Gateway', 'Bridge Number', 'Description'
+                            Columns = 'Priority', 'Name', 'Number Pattern', 'PSTN Usages', 'PSTN Gateway', 'Bridge Number', 'Description'
                             ColumnWidths = 5, 10, 10, 10, 10, 15, 40
                         }
                         if ($Report.ShowTableCaptions) {
@@ -466,124 +709,124 @@ function Get-AbrCsPSTNCallingInfo {
             #endregion Voice Routes
 
         }
-    #endregion Direct Routing
-    Write-PScriboMessage 'End Region Direct Routing.'
+        #endregion Direct Routing
+        Write-PScriboMessage 'End Region Direct Routing.'
 
-    #region Blocked Number Patterns
-    Write-PScriboMessage 'Collecting Number Blocking Patterns'
+        #region Blocked Number Patterns
+        Write-PScriboMessage 'Collecting Number Blocking Patterns'
 
-    Section -Style Heading2 'Number Blocking' {
-        Paragraph 'Number Blocking is used to block calls to specific numbers or number patterns.'
-        Paragraph 'For more information see https://docs.microsoft.com/en-us/microsoftteams/call-blocking-policies-in-teams?WT.mc_id=M365-MVP-5003444'
-    }
-    $CsInboundBlockedNumberPatterns = Get-CsInboundBlockedNumberPattern | Sort-Object Name
-    if (($InfoLevel.CallRouting -gt 0) -and ($CsInboundBlockedNumberPatterns)) {
-        Section -Style Heading3 'Inbound Blocked Number Patterns' {
-            if ($Options.ShowSectionBlurb) {
-                if (!$options.ShowSectionFullDescription) {
-                    #We dont want the blurb and the full description if the user selects both
+        Section -Style Heading2 'Number Blocking' {
+            Paragraph 'Number Blocking is used to block calls to specific numbers or number patterns.'
+            Paragraph 'For more information see https://docs.microsoft.com/en-us/microsoftteams/call-blocking-policies-in-teams?WT.mc_id=M365-MVP-5003444'
+        }
+        $CsInboundBlockedNumberPatterns = Get-CsInboundBlockedNumberPattern | Sort-Object Name
+        if (($InfoLevel.CallRouting -gt 0) -and ($CsInboundBlockedNumberPatterns)) {
+            Section -Style Heading3 'Inbound Blocked Number Patterns' {
+                if ($Options.ShowSectionBlurb) {
+                    if (!$options.ShowSectionFullDescription) {
+                        #We dont want the blurb and the full description if the user selects both
+                        Paragraph 'An inbound PSTN call from a number that matches the blocked number pattern will be blocked.'
+                        BlankLine
+                    }
+                }
+                if ($Options.ShowSectionFullDescription) {
                     Paragraph 'An inbound PSTN call from a number that matches the blocked number pattern will be blocked.'
+                    Paragraph {
+                        Text 'This can be used to block calls from particular numbers, such as telemarketers, or to block calls from a particular area code, such as 1900 numbers.'
+                        Text 'Microsoft Calling Plans, Direct Routing, and Operator Connect all support blocking inbound calls from the Public Switched Telephone Network (PSTN). This feature allows an administrator to define a list of number patterns and exceptions at the tenant global level so that the caller ID of every incoming PSTN call to the tenant can be checked against the list for a match. If a match is made, an incoming call is rejected.'
+                        Text 'Similar to other number patterns in Microsoft Teams, these are based around RegEx patterns.'
+                        Text 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444' }
                     BlankLine
                 }
-            }
-            if ($Options.ShowSectionFullDescription) {
-                Paragraph 'An inbound PSTN call from a number that matches the blocked number pattern will be blocked.'
-                Paragraph {
-                    Text "This can be used to block calls from particular numbers, such as telemarketers, or to block calls from a particular area code, such as 1900 numbers."
-                    Text 'Microsoft Calling Plans, Direct Routing, and Operator Connect all support blocking inbound calls from the Public Switched Telephone Network (PSTN). This feature allows an administrator to define a list of number patterns and exceptions at the tenant global level so that the caller ID of every incoming PSTN call to the tenant can be checked against the list for a match. If a match is made, an incoming call is rejected.'
-                    Text 'Similar to other number patterns in Microsoft Teams, these are based around RegEx patterns.'
-                    Text 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444' }
-                BlankLine
-            }
-            $CsInboundBlockedNumberPatternInfo = @()
-            foreach ($CsInboundBlockedNumberPattern in $CsInboundBlockedNumberPatterns) {
-                $InObj = [Ordered]@{
-                    'Name' = $CsInboundBlockedNumberPattern.Name
-                    'Pattern' = $CsInboundBlockedNumberPattern.Pattern
-                    'Enabled' = $CsInboundBlockedNumberPattern.Enabled
-                    'Description' = $CsInboundBlockedNumberPattern.Description
+                $CsInboundBlockedNumberPatternInfo = @()
+                foreach ($CsInboundBlockedNumberPattern in $CsInboundBlockedNumberPatterns) {
+                    $InObj = [Ordered]@{
+                        'Name' = $CsInboundBlockedNumberPattern.Name
+                        'Pattern' = $CsInboundBlockedNumberPattern.Pattern
+                        'Enabled' = $CsInboundBlockedNumberPattern.Enabled
+                        'Description' = $CsInboundBlockedNumberPattern.Description
+                    }
+                    $CsInboundBlockedNumberPatternInfo += [PSCustomObject]$InObj
                 }
-                $CsInboundBlockedNumberPatternInfo += [PSCustomObject]$InObj
-            }
 
-            if ($InfoLevel.CallRouting -gt 0) {
-                Paragraph "The following sections detail the configuration of the Blocked Number Patterns within the $($CsTenant.DisplayName) tenant."
-                $TableParams = @{
-                    Name = 'Blocked Number Patterns'
-                    List = $false
-                    Columns = 'Name', 'Pattern', 'Enabled', 'Description'
-                    ColumnWidths = 20, 20, 10, 50
+                if ($InfoLevel.CallRouting -gt 0) {
+                    Paragraph "The following sections detail the configuration of the Blocked Number Patterns within the $($CsTenant.DisplayName) tenant."
+                    $TableParams = @{
+                        Name = 'Blocked Number Patterns'
+                        List = $false
+                        Columns = 'Name', 'Pattern', 'Enabled', 'Description'
+                        ColumnWidths = 20, 20, 10, 50
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $CsInboundBlockedNumberPatternInfo | Table @TableParams
                 }
-                if ($Report.ShowTableCaptions) {
-                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                }
-                $CsInboundBlockedNumberPatternInfo | Table @TableParams
+            }
+        } else {
+            Section -Style Heading3 'Number Blocking' {
+                Paragraph 'No Blocked Number Patterns found, Your Tenant will not block any inbound PSTN calls'
+                Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
             }
         }
-    } else {
-        Section -Style Heading3 'Number Blocking' {
-            Paragraph 'No Blocked Number Patterns found, Your Tenant will not block any inbound PSTN calls'
-            Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
+        #endregion Blocked Number Patterns
+
+        #region Exempt Number Patterns
+        Write-PScriboMessage 'Collecting Number Blocking Expemptions'
+
+        $CsInboundExemptNumberPatterns = Get-CsInboundExemptNumberPattern | Sort-Object Name
+        if (($InfoLevel.CallRouting -gt 0) -and ($CsInboundExemptNumberPatterns)) {
+            Section -Style Heading3 'Inbound Number Blocking Exempt Number Patterns' {
+                if ($Options.ShowSectionBlurb) {
+                    if (!$options.ShowSectionFullDescription) {
+                        #We dont want the blurb and the full description if the user selects both
+                        Paragraph 'An inbound PSTN call from a number that matches the Exempt number pattern will be ignored if it exists in a Blocked Number Pattern.'
+                        BlankLine
+                    }
+                }
+                if ($Options.ShowSectionFullDescription) {
+                    Paragraph 'An inbound PSTN call from a number that matches the Exempt number pattern will be ignored if it exists in a Blocked Number Pattern.'
+                    Paragraph {
+                        Text 'This is handy if for example, you have blocked an entire area code, but need to allow a specific number from a vendor through'
+                        Text 'Similar to other number patterns in Microsoft Teams, these are based around RegEx patterns.'
+                        Text 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444' }
+                    BlankLine
+                }
+                $CsInboundExemptNumberPatternInfo = @()
+                foreach ($CsInboundExemptNumberPattern in $CsInboundExemptNumberPatterns) {
+                    $InObj = [Ordered]@{
+                        'Name' = $CsInboundExemptNumberPattern.Name
+                        'Pattern' = $CsInboundExemptNumberPattern.Pattern
+                        'Enabled' = $CsInboundExemptNumberPattern.Enabled
+                        'Description' = $CsInboundExemptNumberPattern.Description
+                    }
+                    $CsInboundExemptNumberPatternInfo += [PSCustomObject]$InObj
+                }
+
+                if ($InfoLevel.CallRouting -gt 0) {
+                    Paragraph "The following sections detail the configuration of the Exempt Number Patterns within the $($CsTenant.DisplayName) tenant."
+                    $TableParams = @{
+                        Name = 'Exempt Number Patterns'
+                        List = $false
+                        Columns = 'Name', 'Pattern', 'Enabled', 'Description'
+                        ColumnWidths = 20, 20, 10, 50
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $CsInboundExemptNumberPatternInfo | Table @TableParams
+                }
+            }
+        } else {
+            Section -Style Heading3 'Number Blocking' {
+                Paragraph 'No Exempt Number Patterns found, No numbers will be specifically allowed through Number Block Patterns'
+                Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
+            }
         }
+        #endregion Exempt Number Patterns
+
     }
-    #endregion Blocked Number Patterns
-
-  #region Exempt Number Patterns
-  Write-PScriboMessage 'Collecting Number Blocking Expemptions'
-
-  $CsInboundExemptNumberPatterns = Get-CsInboundExemptNumberPattern | Sort-Object Name
-  if (($InfoLevel.CallRouting -gt 0) -and ($CsInboundExemptNumberPatterns)) {
-      Section -Style Heading3 'Inbound Number Blocking Exempt Number Patterns' {
-          if ($Options.ShowSectionBlurb) {
-              if (!$options.ShowSectionFullDescription) {
-                  #We dont want the blurb and the full description if the user selects both
-                  Paragraph 'An inbound PSTN call from a number that matches the Exempt number pattern will be ignored if it exists in a Blocked Number Pattern.'
-                  BlankLine
-              }
-          }
-          if ($Options.ShowSectionFullDescription) {
-              Paragraph 'An inbound PSTN call from a number that matches the Exempt number pattern will be ignored if it exists in a Blocked Number Pattern.'
-              Paragraph {
-                  Text "This is handy if for example, you have blocked an entire area code, but need to allow a specific number from a vendor through"
-                  Text 'Similar to other number patterns in Microsoft Teams, these are based around RegEx patterns.'
-                  Text 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444' }
-              BlankLine
-          }
-          $CsInboundExemptNumberPatternInfo = @()
-          foreach ($CsInboundExemptNumberPattern in $CsInboundExemptNumberPatterns) {
-              $InObj = [Ordered]@{
-                  'Name' = $CsInboundExemptNumberPattern.Name
-                  'Pattern' = $CsInboundExemptNumberPattern.Pattern
-                  'Enabled' = $CsInboundExemptNumberPattern.Enabled
-                  'Description' = $CsInboundExemptNumberPattern.Description
-              }
-              $CsInboundExemptNumberPatternInfo += [PSCustomObject]$InObj
-          }
-
-          if ($InfoLevel.CallRouting -gt 0) {
-              Paragraph "The following sections detail the configuration of the Exempt Number Patterns within the $($CsTenant.DisplayName) tenant."
-              $TableParams = @{
-                  Name = 'Exempt Number Patterns'
-                  List = $false
-                  Columns = 'Name', 'Pattern', 'Enabled', 'Description'
-                  ColumnWidths = 20, 20, 10, 50
-              }
-              if ($Report.ShowTableCaptions) {
-                  $TableParams['Caption'] = "- $($TableParams.Name)"
-              }
-              $CsInboundExemptNumberPatternInfo | Table @TableParams
-          }
-      }
-  } else {
-      Section -Style Heading3 'Number Blocking' {
-          Paragraph 'No Exempt Number Patterns found, No numbers will be specifically allowed through Number Block Patterns'
-          Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
-      }
-  }
-  #endregion Exempt Number Patterns
-
-}
 
 
-end {}
+    end {}
 }
