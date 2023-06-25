@@ -36,9 +36,9 @@
             "GatewayDisabled": true,
             "OptionsDisabled": true
         },
-        "SiteRecovery": {
-            "ReplicationHealth": true,
-            "FailoverHealth": true
+        "PhoneNumbers": {
+            "LowAvailability": true,
+            "WeirdNumberRanges": true
         },
         "StorageAccount": {
             "ProvisioningState": true,

@@ -136,5 +136,22 @@ There are 6 levels (0-5) of detail granularity for each section as follows;
 ### Healthcheck
 The **Healthcheck** schema is used to toggle health checks on or off.
 
+#### PSTNGateways
+The **PSTNGateways** schema is used to configure health checks for Direct Routing SBC's.
+
+| Sub-Schema    | Setting      | Default | Description | Highlight                                                                                         |
+|---------------|--------------|---------|-------------|---------------------------------------------------------------------------------------------------|
+| GatewayDisabled | true / false | true    | Highlights SBC's which are not enabled | ![Critical](https://via.placeholder.com/15/FEDDD7/FEDDD7.png) SBC is not enabled |
+| OptionsDisabled | true / false | true    | Highlights SBC's which are not being monitored by Options pings | ![Critical](https://via.placeholder.com/15/FEDDD7/FEDDD7.png) SBC is not being monitored |
+
+#### PhoneNumbers
+The **PhoneNumbers** schema is used to configure health checks for Azure Site Recovery.
+
+| Sub-Schema        | Setting      | Default | Description | Highlight                                                                                               |
+|-------------------|--------------|---------|-------------|---------------------------------------------------------------------------------------------------------|
+| LowAvailability | true / false | true    |  Highlights Number groups with less than 10% of numbers available | ![Critical](https://via.placeholder.com/15/FEDDD7/FEDDD7.png) Replication health is in a critical state |
+| WeirdNumberRanges    | true / false | true    |  Highlights 100 number blocks with less than 10 numbers, this usually indicates a typo in the number range | ![Warning](https://via.placeholder.com/15/FFF4C7/FFF4C7.png) 100 Number Range contains less than 10 numbers|
+
+
 ## :computer: Examples
 <!-- ********** Add some examples. Use other AsBuiltReport modules as a guide. ********** -->

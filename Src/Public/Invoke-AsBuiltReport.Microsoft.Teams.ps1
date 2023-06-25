@@ -61,16 +61,14 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
         #First, check to see if we are already connected to the tenant
         Try {
             Write-PScriboMessage "Checking for connection to $TenantId'."
-            if ((get-cstenant).tenantid -ne $TenantId) {
+            if ((Get-CsTenant).tenantid -ne $TenantId) {
                 Write-PScriboMessage "Wrong Tenant'." -IsWarning
-                Throw "Connected to Wrong Tenant, Reconnecting"
-            }
-            else {
+                Throw 'Connected to Wrong Tenant, Reconnecting'
+            } else {
                 Write-PScriboMessage "Already connected to $TenantId'."
                 $CsAccount = $true
             }
-        }
-        Catch {
+        } Catch {
             Try {
                 Write-PScriboMessage "Connecting to Teams Tenant ID '$TenantId'."
                 if ($MFA) {
@@ -78,8 +76,7 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                 } else {
                     $CsAccount = Connect-MicrosoftTeams -Credential $Credential -TenantId $TenantId -ErrorAction Stop
                 }
-            }
-            Catch {
+            } Catch {
                 Write-Error $_
             }
 
@@ -94,12 +91,26 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                 Get-AbrCsTenant
             }
 
-            Section -Style Heading1 'PSTN Call Routing' {
-                Get-AbrCsPSTNCallingInfo
+            Section -Style Heading1 'PSTN Calling Configuration' {
+                if ($Options.ShowSectionBlurb) {
+                    if (!$options.ShowSectionFullDescription) {
+                        #We dont want the blurb and the full description if the user selects both
+                        Paragraph 'This section covers the configuration of PSTN Calling within your Teams Tenant.'
+                        BlankLine
+                    }
+                }
+                if ($Options.ShowSectionFullDescription) {
+                    Paragraph { Text 'Calls in Microsoft Teams can be broken down into two types,' ; Text 'Teams Calls' -Bold ; Text 'and'; Text 'PSTN Calls'-Bold }
+                    Paragraph { Text 'Teams calls'-Bold ; Text 'are calls between two Teams users. These calls are routed via the Microsoft Teams infrastructure and do not require any additional configuration.'
+                        Text 'PSTN Calls'-Bold; Text 'are calls to and from the'; Text 'Public Switched Telephone Network (PSTN)' -Bold ; Text 'similar to you mobile phone or a payphone'
+                        Text 'As there are so many ways of connecting to the PSTN, these calls require additional configuration to route calls to and from your Teams environment depending on country and carrier.'
+                        Text 'This section covers PSTN Calling settings that affect PSTN calls within your Teams Tenant.' }
+                    BlankLine
+                }
+                Get-AbrCsPSTNNumbers
+                Get-AbrCsPSTNCallRouting
             }
         }
-
-
     }
     #endregion foreach loop
 }

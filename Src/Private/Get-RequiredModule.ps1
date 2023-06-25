@@ -25,8 +25,8 @@ function Get-RequiredModule {
     # Check if the required version of the Teams PowerShell module is installed (check only works for PowerShell Core / 7.x)
     if ($PSVersionTable.PSEdition -eq 'Core') {
         $RequiredModule = Get-Module -ListAvailable -Name $Name | Sort-Object -Property Version -Descending | Select-Object -First 1
-        $ModuleVersion = "$($RequiredModule.Version.Major)" + "." + "$($RequiredModule.Version.Minor)"
-        if ($ModuleVersion -eq ".")  {
+        $ModuleVersion = "$($RequiredModule.Version.Major)" + '.' + "$($RequiredModule.Version.Minor)"
+        if ($ModuleVersion -eq '.') {
             throw "Microsoft Teams PowerShell $Version or higher is required to run the Microsoft Teams As Built Report. Run 'Install-Module -Name $Name -MinimumVersion $Version' to install the required modules."
         }
         if ([Version]$ModuleVersion -lt [Version]$Version) {
