@@ -1,4 +1,4 @@
-function Get-AbrCsPSTNNumbers {
+function Get-AbrCsPSTNNumber {
     <#
     .SYNOPSIS
     Used by As Built Report to retrieve Microsoft Teams PSTN Numbers
@@ -14,6 +14,9 @@ function Get-AbrCsPSTNNumbers {
     .LINK
 
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope='Function')] #we are litterally showing something on screen for interactive purposes.
+
+
     [CmdletBinding()]
     param (
     )
@@ -23,11 +26,14 @@ function Get-AbrCsPSTNNumbers {
     }
 
     process {
+
         #Region Phone Numbers
         Write-PScriboMessage 'Collecting Phone Numbers.'
-        $PhoneNumbers = Get-CsPhoneNumberAssignment | Sort-Object PhoneNumber
+        Write-Host "Collecting Phone Numbers, This may take some time" -ForegroundColor Green
+        $PhoneNumbers = Get-CsPhoneNumberAssignment -Top 1000000| Sort-Object PhoneNumber
         if (($InfoLevel.PhoneNumbers -gt 0) -and ($PhoneNumbers)) {
             Section -Style Heading2 'Telephone Numbers' {
+                Write-Host "Calculating phone number properties, This may take some time" -ForegroundColor Green
                 #Measure the numbers to display in the blurb
                 $UserNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'UserAssignment') })
                 $ServiceNumbers = ($PhoneNumbers | Where-Object { ($_.Capability -contains 'VoiceApplicationAssignment') })
@@ -149,6 +155,15 @@ function Get-AbrCsPSTNNumbers {
                     }
                     $PhoneNumbersSummary += [PSCustomObject]$InObj
 
+
+                    ##Todo fix this, presently it assumes the values are properties, when they are not.
+                    if ($Healthcheck.PhoneNumbers.LowAvailability) {
+                        Write-PScriboMessage 'Low Availability Healthcheck'
+                        $PhoneNumbersSummary | Where-Object { $_.'Available User Numbers' -lt ((($PhoneNumbersSummary.UserNumbers.count) / 10)) } | Set-Style -Style Critical -Property 'Available User Numbers'
+                        $PhoneNumbersSummary | Where-Object { $_.'Available Service Numbers' -lt ((($PhoneNumbersSummary.ServiceNumbers.count) / 50))} | Set-Style -Style Critical -Property 'Available Service Numbers'
+                    }
+
+
                     $TableParams = @{
                         Name = 'Number Summary'
                         List = $false
@@ -174,6 +189,12 @@ function Get-AbrCsPSTNNumbers {
                             'Available Service Numbers' = ($UnassignedUserNumbers | Where-Object { $_.City -eq $UniqueCity }).count
                         }
                         $CityNumberInfo += [PSCustomObject]$InObj
+                    }
+
+                    if ($Healthcheck.PhoneNumbers.LowAvailability) {
+                        Write-PScriboMessage 'Low Availability Healthcheck'
+                        $CityNumberInfo | Where-Object { $_.'Available User Numbers' -lt 10 } | Set-Style -Style Critical -Property 'Available User Numbers'
+                        $CityNumberInfo | Where-Object { $_.'Available Service Numbers' -lt 1 } | Set-Style -Style Critical -Property 'Available Service Numbers'
                     }
                     if (($InfoLevel.PhoneNumbers -le 2) -and ($PhoneNumbers)) {
                         Paragraph 'The following table show a summary of PSTN numbers broken down by their city.'
@@ -294,6 +315,12 @@ function Get-AbrCsPSTNNumbers {
                         Write-PScriboMessage 'Weird Phone Range Healthcheck'
                         $HundredNumberInfo | Where-Object { $_.'Total Numbers' -lt 10 } | Set-Style -Style Critical -Property 'Total Numbers'
                     }
+                    if ($Healthcheck.PhoneNumbers.LowAvailability) {
+                        Write-PScriboMessage 'Low Availability Healthcheck'
+                        $HundredNumberInfo | Where-Object { $_.'Available User Numbers' -lt 10 } | Set-Style -Style Critical -Property 'Available User Numbers'
+                        $HundredNumberInfo | Where-Object { $_.'Available Service Numbers' -lt 1 } | Set-Style -Style Critical -Property 'Available Service Numbers'
+                    }
+
                     if (($InfoLevel.PhoneNumbers -le 2) -and ($PhoneNumbers)) {
                         Paragraph 'The following table show a summary of PSTN numbers broken down by their number range.'
                         $TableParams = @{

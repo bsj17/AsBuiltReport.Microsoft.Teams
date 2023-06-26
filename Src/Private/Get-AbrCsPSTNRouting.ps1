@@ -239,11 +239,15 @@ function Get-AbrCsPSTNCallRouting {
                     if ($Healthcheck.PSTNGateways.GatewayDisabled) {
                         Write-PScriboMessage 'Gateway Disabled Healthcheck'
                         $CsOnlinePSTNGatewayInfo | Where-Object { $_.'Enabled' -ne $True } | Set-Style -Style Critical -Property 'Enabled'
+                        $Healthcheck.PSTNGateways | Add-Member -NotePropertyName 'Fault' -NotePropertyValue $true -Force
+                        $Healthcheck.PSTNGateways.GatewayDisabled | Add-Member -NotePropertyName 'Message' -force -NotePropertyValue "One or more of your PSTN Gateways are disabled. This is normal if you are performing maintenance on the SBC. Otherwise may indicate a problem with your gateway configuration"
                     }
 
                     if ($Healthcheck.PSTNGateways.OptionsDisabled) {
                         Write-PScriboMessage 'Gateway Options Healthcheck'
                         $CsOnlinePSTNGatewayInfo | Where-Object { $_.'SendSipOptions' -ne $True } | Set-Style -Style Critical -Property 'SendSipOptions'
+                        $Healthcheck.PSTNGateways | Add-Member -NotePropertyName 'Fault' -NotePropertyValue $true -Force
+                        $Healthcheck.PSTNGateways.OptionsDisabled | Add-Member -NotePropertyName 'Message' -force -NotePropertyValue "One or more of your PSTN Gateways are not using SIP Options requests to monitor the health of the SBC. This is normal if you are performing maintenance on the SBC. Otherwise may indicate a problem with your gateway configuration"
                     }
 
                     ##Todo add more Health Checks
@@ -504,7 +508,7 @@ function Get-AbrCsPSTNCallRouting {
                 }
             }
         } else {
-            Section -Style Heading3 'Number Blocking' {
+            Section -Style Heading3 'Inbound Blocked Number Patterns' {
                 Paragraph 'No Blocked Number Patterns found, Your Tenant will not block any inbound PSTN calls'
                 Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
             }
@@ -558,7 +562,7 @@ function Get-AbrCsPSTNCallRouting {
                 }
             }
         } else {
-            Section -Style Heading3 'Number Blocking' {
+            Section -Style Heading3 'Inbound Number Blocking Exempt Number Patterns' {
                 Paragraph 'No Exempt Number Patterns found, No numbers will be specifically allowed through Number Block Patterns'
                 Paragraph 'For more information see https://learn.microsoft.com/en-us/microsoftteams/block-inbound-calls?WT.mc_id=M365-MVP-5003444'
             }

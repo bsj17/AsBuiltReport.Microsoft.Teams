@@ -24,6 +24,10 @@ Style -Name 'Warning' -Size 10 -BackgroundColor 'FEF3B5'
 Style -Name 'Info' -Size 10 -BackgroundColor 'E1F1F6'
 Style -Name 'OK' -Size 10 -BackgroundColor 'DFF0D0'
 
+## For Custom Warning and Info Tables
+Style -Name 'TableWarning' -Size 10 -Color '#FAFAFA' -BackgroundColor 'BF5C00'
+Style -Name 'TableInfo' -Size 10 -Color 'FAFAFA' -BackgroundColor '99B8EB'
+
 # Configure Table Styles
 $TableDefaultProperties = @{
     Id = 'TableDefault'
@@ -42,6 +46,40 @@ $TableDefaultProperties = @{
 
 TableStyle @TableDefaultProperties -Default
 TableStyle -Id 'Borderless' -HeaderStyle Normal -RowStyle Normal -BorderWidth 0
+
+# Configure Table Styles
+$TableInfoProperties = @{
+    Id = 'TableInfo'
+    HeaderStyle = 'TableInfo'
+    RowStyle = 'TableInfo'
+    BorderColor = '99B8EB'
+    Align = 'Center'
+    CaptionStyle = 'Caption'
+    CaptionLocation = 'Below'
+    BorderWidth = 0.25
+    PaddingTop = 4
+    PaddingBottom = 4
+    PaddingLeft = 4
+    PaddingRight = 4
+}
+TableStyle @TableInfoProperties
+
+# Configure Table Styles
+$TableWarningProperties = @{
+    Id = 'TableWarning'
+    HeaderStyle = 'TableWarning'
+    RowStyle = 'TableWarning'
+    BorderColor = '99B8EB'
+    Align = 'Center'
+    CaptionStyle = 'Caption'
+    CaptionLocation = 'Below'
+    BorderWidth = 0.25
+    PaddingTop = 4
+    PaddingBottom = 4
+    PaddingLeft = 4
+    PaddingRight = 4
+}
+TableStyle @TableWarningProperties
 
 # Microsoft Teams Cover Page Layout
 # Header & Footer
