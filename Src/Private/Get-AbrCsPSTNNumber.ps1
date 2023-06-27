@@ -299,13 +299,13 @@ function Get-AbrCsPSTNNumber {
 
                         $InObj = [Ordered]@{
                             'NumberBlock' = "$($HundredNumberBlock)xx"
-                            'Total Numbers' = ($PhoneNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'User Numbers' = ($UserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'Service Numbers' = ($ServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'Assigned User Numbers' = ($AssignedUserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'Assigned Service Numbers' = ($AssignedServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'Available User Numbers' = ($UnassignedUserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
-                            'Available Service Numbers' = ($UnassignedUserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)*"}).count
+                            'Total Numbers' = ($PhoneNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'User Numbers' = ($UserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'Service Numbers' = ($ServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'Assigned User Numbers' = ($AssignedUserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'Assigned Service Numbers' = ($AssignedServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'Available User Numbers' = ($UnassignedUserNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
+                            'Available Service Numbers' = ($UnassignedServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
                             'Provider' = $Provider
                         }
                         $HundredNumberInfo += [PSCustomObject]$InObj

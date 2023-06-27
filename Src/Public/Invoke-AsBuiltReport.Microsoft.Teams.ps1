@@ -90,7 +90,7 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
             Section -Style Heading1 "$($CsTenant.DisplayName) Basic Tenant Information" {
                 Get-AbrCsTenant
             }
-
+            PageBreak
             Section -Style Heading1 'PSTN Calling Configuration' {
                 if ($Options.ShowSectionBlurb) {
                     if (!$options.ShowSectionFullDescription) {
@@ -110,7 +110,7 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                 Get-AbrCsPSTNNumber
                 Get-AbrCsPSTNCallRouting
             }
-
+            PageBreak
             Section -Style Heading1 "$($CsTenant.DisplayName) Health Checks" {
                 Get-AbrCsHealthCheck
             }

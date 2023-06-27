@@ -298,7 +298,7 @@ function Get-AbrCsPSTNCallRouting {
                 }
             } else {
                 Section -Style Heading3 'PSTN Gateways' {
-                    Paragraph 'No custom PSTN Gateways found, this is normal if you do not use Direct Routing.' #Todo check this
+                    Paragraph 'No PSTN Gateways found, this is normal if you do not use Direct Routing.' 
                     Paragraph 'Your Tenant will default to routing calls to Operator Connect or Microsoft PSTN Calling.'
                     Paragraph 'See https://learn.microsoft.com/en-US/microsoftteams/manage-voice-routing-policies?WT.mc_id=M365-MVP-5003444 for more information.'
                 }
