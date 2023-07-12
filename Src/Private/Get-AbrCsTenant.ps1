@@ -23,6 +23,7 @@ function Get-AbrCsTenant {
     }
 
     process {
+        $CsTenant = Get-CsTenant
         $CSTenantInfo = [PSCustomObject]@{
             'Tenant Name' = $CsTenant.DisplayName
             'Tenant ID' = $CsTenant.TenantId

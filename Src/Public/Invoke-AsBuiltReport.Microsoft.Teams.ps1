@@ -107,13 +107,20 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                         Text 'This section covers PSTN Calling settings that affect PSTN calls within your Teams Tenant.' }
                     BlankLine
                 }
-                Get-AbrCsPSTNNumber
+                #Get-AbrCsPSTNNumber
                 Get-AbrCsPSTNCallRouting
             }
             PageBreak
             Section -Style Heading1 "$($CsTenant.DisplayName) Health Checks" {
                 Get-AbrCsHealthCheck
             }
+            PageBreak
+
+            Section -Style Heading1 "Locations in the Tenant" {
+                Get-AbrCsOnlineLisLocation
+
+            }
+
         }
     }
     #endregion foreach loop
