@@ -10,7 +10,9 @@
     },
     "Options": {
         "ShowSectionBlurb": true,
-        "ShowSectionFullDescription": true
+        "ShowSectionFullDescription": true,
+        "SiteContactsPathToFile": "",
+        "DirectRoutingNumberRangesPathToFile": ""
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
