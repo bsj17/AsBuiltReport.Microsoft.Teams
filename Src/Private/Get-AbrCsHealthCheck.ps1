@@ -59,6 +59,11 @@ function Get-AbrCsHealthCheck {
             }
         }
         #endregion Phone Numbers
+
+        #Migration checks
+        #check for meeting migrations
+        #check for on-prem records, without an on-prem instance.
+
     }
 
 

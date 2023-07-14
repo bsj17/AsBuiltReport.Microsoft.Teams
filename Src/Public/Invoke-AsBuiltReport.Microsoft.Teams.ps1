@@ -111,6 +111,18 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                 Get-AbrCsPSTNCallRouting
             }
             PageBreak
+            Section -Style Heading1 "$($CsTenant.DisplayName) Teams and Channels" {
+               #todo stuff
+            }
+            PageBreak
+            Section -Style Heading1 "$($CsTenant.DisplayName) Devices" {
+                #todo stuff
+            }
+            PageBreak
+            Section -Style Heading1 "$($CsTenant.DisplayName) User Checks" {
+                #todo stuff
+            }
+            PageBreak
             Section -Style Heading1 "$($CsTenant.DisplayName) Health Checks" {
                 Get-AbrCsHealthCheck
             }
