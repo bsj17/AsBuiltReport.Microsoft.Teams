@@ -27,18 +27,32 @@ function Get-AbrCsOnlineLisLocation {
     process {
             $LisLocations = Get-CsOnlineLisLocation
 
-        if ($True) { #($InfoLevel.LocationInformationService -eq 0) -and ($LisLocations)
-            Section -Style Heading2 'Telephone Numbers' {
-                Write-Host "Calculating phone number properties, This may take some time" -ForegroundColor Green}
+            #load site contact file if path specified in config file
+            if ($SiteContactsPath){
+                if(Test-Path){
+                $SiteContacts = Import-Csv -Path $SiteContactsPath
+                }
+                else {
+                    Write-PscriboMessage "Collecting Teams Locations information."
+                }
+            }
+
+        if (($InfoLevel.LocationInformationService -gt 0) -and $LisLocations) {
+            Section -Style Heading2 'LocationInformationService' {
+
+                Write-PscriboMessage "Processing locations"
 
                 $Locations = @()
                 foreach ($LisLocation in $LisLocations) {
                     $InObj = [Ordered]@{
                         'Name' = $LisLocation.Description
-                        'GPS Coordinates' = "{0},{1}" -f $LisLocation.Longitude, $LisLocation.Longitude
+                        'GPS Coordinates' = "https://www.bing.com/maps?q={0},{1}" -f $LisLocation.Longitude, $LisLocation.Latitude
                         'Address' = 'adresa'
                         'LocationId' = $LisLocation.LocationId
+
                     }
+                    #add SiteContact property if specified in config file
+                    if ($SiteContactsPath) {$InObj | Add-Member -NotePropertyName 'SiteContact' -NotePropertyValue ($SiteContacts | Where-Object LocationID -EQ $LisLocation.LocationId).Email -join ";"}
                     $Locations += [PSCustomObject]$InObj
 
                 }
@@ -48,7 +62,7 @@ function Get-AbrCsOnlineLisLocation {
                 $TableParams = @{
                     Name = 'Locations'
                     List = $false
-                    Columns = ($locations | Get-Member | where MemberType -eq NoteProperty).name #'Name', 'GPS Coordinates', 'Optimize Device Dialing', 'Normalization Rules', 'Description'
+                    Columns = ($locations | Get-Member | Where-Object MemberType -eq NoteProperty).name | Sort-Object -Descending #'Name', 'GPS Coordinates', 'Optimize Device Dialing', 'Normalization Rules', 'Description'
                     #ColumnWidths = 20, 10, 10, 30, 30
                 }
                 if ($True #$Report.ShowTableCaptions
@@ -59,6 +73,7 @@ function Get-AbrCsOnlineLisLocation {
 
 
             }
+        }
 
         else {
             Section -Style Heading2 'LocationInformationService' {
