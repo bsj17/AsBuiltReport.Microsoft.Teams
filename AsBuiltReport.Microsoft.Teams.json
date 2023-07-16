@@ -10,7 +10,9 @@
     },
     "Options": {
         "ShowSectionBlurb": true,
-        "ShowSectionFullDescription": true
+        "ShowSectionFullDescription": true,
+        "SiteContactsPathToFile": "C:\\Projects\\playground\\contacts.csv",
+        "DirectRoutingNumberRangesPathToFile": "C:\\Projects\\playground\\ranges.csv"
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
@@ -24,7 +26,7 @@
         "PhoneNumbers" : 5,
         "CallHandling": 0,
         "LocationBasedRouting": 0,
-        "LocationInformationService": 0,
+        "LocationInformationService": 1,
         "NumberRanges": 0,
         "ComplianceRecording": 0,
         "SurvivableBranchAppliances": 0

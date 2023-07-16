@@ -176,7 +176,7 @@ function Get-AbrCsPSTNNumber {
                     $PhoneNumbersSummary | Table @TableParams
                 }
                 Section -Style Heading3 'Phone Numbers by City' {
-                    $CityNumberInfo = @()
+                    [array]$CityNumberInfo = @()
                     foreach ($UniqueCity in $UniqueCities) {
                         $InObj = [Ordered]@{
                             'City' = $UniqueCity
@@ -308,7 +308,7 @@ function Get-AbrCsPSTNNumber {
                             'Available Service Numbers' = ($UnassignedServiceNumbers | Where-Object { $_.TelephoneNumber -match "\$($HundredNumberBlock)\d{2}$"}).count
                             'Provider' = $Provider
                         }
-                        $HundredNumberInfo += [PSCustomObject]$InObj
+                        [System.Collections.ArrayList]$HundredNumberInfo += [PSCustomObject]$InObj
                     }
 
                     if ($Healthcheck.PhoneNumbers.WeirdNumberRanges) {
@@ -333,18 +333,19 @@ function Get-AbrCsPSTNNumber {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $HundredNumberInfo | Table @TableParams
-                    } else {
+                    }
+                    else {
 
                         Paragraph 'The following tables show a summary of PSTN numbers broken down by their number range.'
                         ForEach ($HundredNumberblock in $HundredNumberInfo) {
-                            Section -Style Heading4 "$HundredNumberblock" {
+                            Section -Style Heading4 "$($HundredNumberblock.NumberBlock)" {
                                 $TableParams = @{
-                                    Name = "Numbers By Range - $HundredNumberblock"
+                                    Name = "Numbers By Range - $($HundredNumberblock.NumberBlock)"
                                     List = $true
                                     ColumnWidths = 50, 50
                                 }
                                 if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    $TableParams['Caption'] = "- $($HundredNumberblock.NumberBlock)"
                                 }
                                 $HundredNumberblock | Table @TableParams
                             }
