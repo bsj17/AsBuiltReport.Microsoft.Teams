@@ -3,18 +3,21 @@ function Get-RestPSTNGWStatus {
      .SYNOPSIS
      Used to get information about GW helth status from TAC portal API.
      Using this is not documeted and it's currently experimental.
-     Access
+
      .DESCRIPTION
      Using https://trunkstatsapi-prod.trafficmanager.net/v1/Status/trunk is not documeted and it's currently experimental.
-     Access token needs to be obtained from TAC until I figure out right set of claims to be
+     Access token needs to be obtained from TAC until I figure out right set of claims to be used automatically.
+     Please note that token life is limited.
+
      .NOTES
          Version:        0.1.0
          Author:         Branko Sabadi
          Twitter:        @branqic
          Github:         @bsj17
+
      .EXAMPLE
      $Thetoken ="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsI..."
-     Get-PSTNGWStatus -Thetoken $Thetoken -PSTNGw "sbc01.test.com"
+     Get-PSTNGWStatus -TACAccesstoken $Thetoken -PSTNGw "sbc01.test.com"
      .LINK
      #>
     [CmdletBinding()]
