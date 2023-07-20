@@ -2,7 +2,7 @@ function Get-RestPSTNGWStatus {
     <#
      .SYNOPSIS
      Used to get information about GW helth status from TAC portal API.
-     Using this is not documeted and it's currently experimental.
+     Using this is not documented and it's currently considered experimental.
 
      .DESCRIPTION
      Using https://trunkstatsapi-prod.trafficmanager.net/v1/Status/trunk is not documeted and it's currently experimental.
@@ -23,7 +23,7 @@ function Get-RestPSTNGWStatus {
     [CmdletBinding()]
     param (
        [Parameter(Position = 0, Mandatory = $true,
-          HelpMessage="Copy Access token from TAC console using developer mode in browser")]
+        HelpMessage="Copy Access token from TAC console using developer mode in browser")]
        [string]$TACAccesstoken,
        [Parameter(Position = 1, Mandatory = $true)]
        $PSTNGw
@@ -52,10 +52,11 @@ function Get-RestPSTNGWStatus {
        if($content){
        return [pscustomobject] @{
             "trunkFqdn" = $content.trunkFqdn;
+            "SBC Vendor" = $content.info.vendor.value
             "SBC Model" = $content.info.userAgent
             "tlsStatus" = $content.optionsAndTlsStatus.tlsStatus
             "certificateExpirationDate" = $content.optionsAndTlsStatus.certificateExpirationDate
-            "trunkOverallStatus" = $content.InactiveNoRecentPingsAndCalls
+            "trunkOverallStatus" = $content.trunkOverallStatus
 
           }
           Remove-Variable content

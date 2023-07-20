@@ -50,9 +50,17 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
     $Options = $ReportConfig.Options
     $Healthcheck = $ReportConfig.Healthcheck
 
+
+
+
+
     #External optional files path for LIS and Direct Routing Numbers
-    $SiteContactsPath = $ReportConfig.SiteContactsPathToFile
-    $DirectRoutingNumbersPath = $ReportConfig.DirectRoutingNumberRangesPathToFile
+    $SiteContactsPath = $ReportConfig.options.SiteContactsPathToFile
+    $DirectRoutingNumbersPath = $ReportConfig.options.DirectRoutingNumberRangesPathToFile
+
+    #Token for TAC PSTNGW API
+    $TACtokenPath = $ReportConfig.options.TACTokenPathToFile
+
     # Used to set values to TitleCase where required
     $TextInfo = (Get-Culture).TextInfo
 
@@ -110,7 +118,7 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
                         Text 'This section covers PSTN Calling settings that affect PSTN calls within your Teams Tenant.' }
                     BlankLine
                 }
-                Get-AbrCsPSTNNumber
+                #Get-AbrCsPSTNNumber
                 Get-AbrCsPSTNCallRouting
             }
             PageBreak
@@ -121,7 +129,7 @@ function Invoke-AsBuiltReport.Microsoft.Teams {
 
             Section -Style Heading1 "Locations in the Tenant" {
                 Get-AbrCsOnlineLisLocation
-                Paragraph {Text "<a href='https://www.bing.com'>Click here to visit Bing</a>"}
+                Get-AbrRestPSTNGWStatus
 
             }
 

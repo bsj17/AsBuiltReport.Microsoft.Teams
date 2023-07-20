@@ -29,7 +29,7 @@ function Get-AbrCsOnlineLisLocation {
 
             #load site contact file if path specified in config file
             if ($SiteContactsPath){
-                if(Test-Path){
+                if(Test-Path -Path $SiteContacts){
                 $SiteContacts = Import-Csv -Path $SiteContactsPath
                 }
                 else {
@@ -47,7 +47,7 @@ function Get-AbrCsOnlineLisLocation {
                     $InObj = [Ordered]@{
                         'Name' = $LisLocation.Description
                         'GPS Coordinates' = "https://www.bing.com/maps?q={0},{1}" -f $LisLocation.Longitude, $LisLocation.Latitude
-                        'Address' = 'adresa'
+                        'Address' = "{0} {1}, {2}, {3} {4},{5}" -f $LisLocation.HouseNumber,$LisLocation.StreetName,$LisLocation.City,$LisLocation.StateOrProvince,$LisLocation.PostalCode,$LisLocation.CountryOrRegion
                         'LocationId' = $LisLocation.LocationId
 
                     }
